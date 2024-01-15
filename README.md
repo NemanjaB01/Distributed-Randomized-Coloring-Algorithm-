@@ -14,7 +14,7 @@ To run the algorithm, use the following command:
 
   
 Running the script without parameters uses default values. To see available options and defaults, use:  
-  python3 main.py --help  
+  python3 main.py --help   
 
 
 
