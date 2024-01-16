@@ -112,7 +112,7 @@ def is_coloring_valid(color_map: dict[int, int], nodes: list[Node]) -> bool:
 
 
 def color_graph_distributed(
-    num_nodes: int = 10000, max_degree: int = 2, seed: int = 42
+    num_nodes: int = 1000, max_degree: int = 2, seed: int = 42
 ) -> None:
     random.seed(seed)
     sc = SparkContext.getOrCreate()
