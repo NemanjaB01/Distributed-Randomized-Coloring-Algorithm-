@@ -1,7 +1,7 @@
 import random
 from pprint import pprint
 from random import randint
-from typing import Callable, Iterable
+from typing import Callable, Iterable, List, Optional
 
 from pyspark import RDD, SparkContext
 
@@ -14,11 +14,11 @@ import fire
 class Node:
     id: int
     color: int
-    neighbors: list[int]
+    neighbors: List[int]
     candidate_color: int
 
 
-def initialize_graph(n: int, max_degree: int) -> list[Node]:
+def initialize_graph(n: int, max_degree: int) -> List[Node]:
     nodes = [Node(id=i, color=-1, neighbors=[], candidate_color=-1) for i in range(n)]
     for node in nodes:
         potential_neighbors = [i for i in range(n) if i != node.id]
@@ -32,7 +32,7 @@ def initialize_graph(n: int, max_degree: int) -> list[Node]:
 
 
 def choose_candidate_color(
-    node: Node, neighbors: Iterable[int] | None, max_degree: int
+    node: Node, neighbors: Optional[Iterable[int]], max_degree: int
 ) -> Node:
     if node.color != -1:
         return node
@@ -52,14 +52,14 @@ def choose_candidate_color(
     return Node(id=node.id, color=-1, candidate_color=-1, neighbors=node.neighbors)
 
 
-def apply_candidate_color(node: Node, neighbors: Iterable[int] | None) -> Node:
+def apply_candidate_color(node: Node, neighbors: Optional[Iterable[int]]) -> Node:
     if node.color != -1:
         return node
 
     neighbors_colors = list(neighbors) if neighbors is not None else []
 
     if len(neighbors_colors) == 0:
-        print("NO_NEIGH", node)
+        # print("NO_NEIGH", node)
         return Node(
             id=node.id,
             color=node.candidate_color,
@@ -68,7 +68,7 @@ def apply_candidate_color(node: Node, neighbors: Iterable[int] | None) -> Node:
         )
 
     if node.candidate_color != -1 and node.candidate_color not in neighbors_colors:
-        print("CHOSEN", node, neighbors_colors)
+        # print("CHOSEN", node, neighbors_colors)
         return Node(
             id=node.id,
             color=node.candidate_color,
@@ -81,7 +81,7 @@ def apply_candidate_color(node: Node, neighbors: Iterable[int] | None) -> Node:
 
 def get_joined_rdd(
     nodes_rdd: RDD[Node], accessor_fn: Callable[[Node], int]
-) -> RDD[tuple[int, tuple[Node, Iterable[int] | None]]]:
+) -> RDD[tuple[int, tuple[Node, Optional[Iterable[int]]]]]:
     neighbors_rdd = (
         nodes_rdd.flatMap(
             lambda node: [
